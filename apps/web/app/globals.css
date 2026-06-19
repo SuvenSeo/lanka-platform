@@ -1,0 +1,114 @@
+:root {
+  --maroon: #8b1538;
+  --gold: #c9a227;
+  --teal: #0d7377;
+  --bg: #0a0a0f;
+  --surface: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --font-sans: system-ui, sans-serif;
+  --font-display: Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: radial-gradient(ellipse at top, #1a0a12 0%, var(--bg) 50%);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 3rem; }
+
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(12px);
+  background: rgba(10, 10, 15, 0.85);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0.75rem 1.25rem;
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+}
+
+.logo { font-family: var(--font-display); font-size: 1.25rem; color: var(--text); font-weight: 600; }
+.nav-links { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.875rem; }
+.nav-links a { color: var(--muted); }
+.nav-links a:hover { color: var(--gold); text-decoration: none; }
+
+.hero { padding: 2.5rem 0 1.5rem; }
+.hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.5rem; }
+.hero .trilingual { color: var(--gold); font-size: 0.95rem; margin-bottom: 0.75rem; }
+.hero p { color: var(--muted); max-width: 60ch; }
+
+.section-title { font-family: var(--font-display); font-size: 1.35rem; margin: 2rem 0 1rem; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+}
+
+.stat-card strong { display: block; font-size: 1.5rem; color: var(--gold); }
+
+.card-grid, .dataset-list { display: grid; gap: 1rem; }
+@media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem; transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(201, 162, 39, 0.4); }
+.card h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+.card-desc { color: var(--muted); font-size: 0.875rem; }
+.card-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+
+.badge {
+  display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.5rem;
+  border-radius: 999px; background: rgba(255,255,255,0.08); margin-right: 0.35rem;
+}
+.badge-active { background: rgba(13, 115, 119, 0.3); color: #5eead4; }
+.badge-maroon { background: rgba(139, 21, 56, 0.35); }
+
+.search-form { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; }
+.input {
+  flex: 1; min-width: 200px; padding: 0.65rem 1rem;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: rgba(0,0,0,0.3); color: var(--text);
+}
+.btn {
+  padding: 0.65rem 1.25rem; border-radius: 8px; border: none; cursor: pointer;
+  font-weight: 600; background: var(--maroon); color: white;
+}
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+.filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.filter-row a, .filter-row button {
+  padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+}
+.filter-row a.active { border-color: var(--gold); color: var(--gold); }
+
+.map-embed { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin: 1rem 0; }
+.map-embed iframe { width: 100%; height: 480px; border: 0; }
+
+.site-footer {
+  margin-top: 3rem; padding: 2rem 1.25rem; border-top: 1px solid var(--border);
+  text-align: center; color: var(--muted); font-size: 0.85rem;
+}
+
+.text-muted { color: var(--muted); }
+.mt-2 { margin-top: 1rem; }
+.mb-2 { margin-bottom: 1rem; }
