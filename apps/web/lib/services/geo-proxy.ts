@@ -2,6 +2,7 @@ const TOPO_BASE =
   "https://raw.githubusercontent.com/nuuuwan/lk_admin_regions/main/data/geo/topojson/e2_tiny";
 
 const TOPOJSON_URLS: Record<string, string> = {
+  country: `${TOPO_BASE}/countrys.topojson`,
   provinces: `${TOPO_BASE}/provinces.topojson`,
   districts: `${TOPO_BASE}/districts.topojson`,
 };

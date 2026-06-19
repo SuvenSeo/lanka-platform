@@ -155,6 +155,26 @@ a:hover { text-decoration: underline; }
   display: block;
   margin: 0 auto;
 }
+.country-outline {
+  fill: rgba(139, 21, 56, 0.35);
+  stroke: var(--gold);
+  stroke-width: 1.5;
+}
+.province-marker circle {
+  fill: rgba(201, 162, 39, 0.85);
+  stroke: var(--gold);
+  stroke-width: 1.5;
+  transition: r 0.15s, fill 0.15s;
+}
+.province-marker-hover circle, .province-marker:hover circle {
+  fill: rgba(201, 162, 39, 1);
+}
+.province-marker-label {
+  fill: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
 .province-path {
   fill: rgba(139, 21, 56, 0.45);
   stroke: var(--gold);

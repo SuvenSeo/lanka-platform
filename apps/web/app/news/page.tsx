@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getNewsTimeline } from "@/lib/api";
+import { fetchNewsTimeline } from "@/lib/services/news";
 import { TRILINGUAL } from "@/lib/i18n";
 import { SyncBadge } from "@/components/SyncBadge";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewsPage() {
-  const timeline = await getNewsTimeline(40).catch(() => null);
+  const timeline = await fetchNewsTimeline(40).catch(() => null);
   const articles =
     (timeline?.articles as Array<{
       doc_id: string;
