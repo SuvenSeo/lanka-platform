@@ -37,6 +37,13 @@ export default async function FuelPage() {
         </>
       )}
 
+      {live?.text && !live.rows?.length && (
+        <div className="card mt-2">
+          <h3>Pipeline log</h3>
+          <pre className="code-block doc-body">{live.text.slice(0, 12000)}</pre>
+        </div>
+      )}
+
       {live?.data != null && (
         <div className="card mt-2">
           <h3>Price summary</h3>
