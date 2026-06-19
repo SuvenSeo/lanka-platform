@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { geoMercator, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
-import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { Feature, FeatureCollection, Geometry, Point } from "geojson";
 import type { GeometryCollection, Topology } from "topojson-specification";
 
 type ProvinceMarker = {
@@ -18,6 +18,33 @@ function decodeTopo(topo: Topology): FeatureCollection {
   const key = Object.keys(topo.objects)[0];
   if (!key) throw new Error("empty topojson");
   return feature(topo, topo.objects[key] as GeometryCollection) as FeatureCollection;
+}
+
+function projectionFromBbox(
+  bbox: [number, number, number, number],
+  width: number,
+  height: number,
+) {
+  const [x0, y0, x1, y1] = bbox;
+  const corners: FeatureCollection<Point> = {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [x0, y0] },
+        properties: {},
+      },
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [x1, y1] },
+        properties: {},
+      },
+    ],
+  };
+  return geoMercator().fitExtent(
+    [[24, 24], [width - 24, height - 24]],
+    corners,
+  );
 }
 
 export function ProvinceMap({ width = 640, height = 480 }: { width?: number; height?: number }) {
@@ -39,16 +66,21 @@ export function ProvinceMap({ width = 640, height = 480 }: { width?: number; hei
       }),
     ])
       .then(([countryTopo, provinceTopo]) => {
-        const country = decodeTopo(countryTopo);
-        const provinces = decodeTopo(provinceTopo);
-        const projection = geoMercator().fitExtent(
-          [[24, 24], [width - 24, height - 24]],
-          country as FeatureCollection<Geometry>,
+        if (!countryTopo.bbox || countryTopo.bbox.length < 4) {
+          throw new Error("missing bbox");
+        }
+        const projection = projectionFromBbox(
+          countryTopo.bbox as [number, number, number, number],
+          width,
+          height,
         );
         const pathGen = geoPath(projection);
+
+        const country = decodeTopo(countryTopo);
         const countryPath = pathGen(country.features[0] as Feature<Geometry>) ?? "";
         setOutline(countryPath);
 
+        const provinces = decodeTopo(provinceTopo);
         const nextMarkers: ProvinceMarker[] = [];
         for (const f of provinces.features) {
           const props = f.properties as Record<string, string | number | undefined>;
@@ -85,7 +117,14 @@ export function ProvinceMap({ width = 640, height = 480 }: { width?: number; hei
         role="img"
         aria-label="Sri Lanka provinces"
       >
-        <path d={outline} className="country-outline" />
+        <defs>
+          <clipPath id="map-clip">
+            <rect x="0" y="0" width={width} height={height} />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#map-clip)">
+          <path d={outline} className="country-outline" />
+        </g>
         {markers.map((m) => (
           <g
             key={m.id}
@@ -96,9 +135,11 @@ export function ProvinceMap({ width = 640, height = 480 }: { width?: number; hei
             style={{ cursor: "pointer" }}
           >
             <circle cx={m.cx} cy={m.cy} r={hovered === m.id ? 14 : 10} />
-            <text x={m.cx} y={m.cy - 16} textAnchor="middle" className="province-marker-label">
-              {m.name}
-            </text>
+            {hovered === m.id && (
+              <text x={m.cx} y={m.cy - 16} textAnchor="middle" className="province-marker-label">
+                {m.name}
+              </text>
+            )}
             <title>{m.name}</title>
           </g>
         ))}
