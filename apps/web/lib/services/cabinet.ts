@@ -1,3 +1,5 @@
+import { fetchRemoteText, parseTsv } from "./remote-fetch";
+
 const CABINET_TSV =
   "https://raw.githubusercontent.com/nuuuwan/lk_cabinet_decisions/data/data/lk_cabinet_decisions/docs_last1000.tsv";
 
@@ -18,20 +20,8 @@ async function loadRows(): Promise<Record<string, string>[]> {
   const now = Date.now();
   if (cache && now - cache.at < TTL_MS) return cache.rows;
 
-  const res = await fetch(CABINET_TSV, { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error("Failed to fetch cabinet TSV");
-  const text = await res.text();
-  const lines = text.trim().split("\n");
-  const header = lines[0]?.split("\t") ?? [];
-  const rows: Record<string, string>[] = [];
-  for (const line of lines.slice(1)) {
-    const cols = line.split("\t");
-    const row: Record<string, string> = {};
-    header.forEach((h, i) => {
-      row[h] = cols[i] ?? "";
-    });
-    rows.push(row);
-  }
+  const text = await fetchRemoteText(CABINET_TSV, { revalidate: 3600 });
+  const rows = parseTsv(text);
   cache = { at: now, rows };
   return rows;
 }

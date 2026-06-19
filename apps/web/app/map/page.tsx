@@ -28,7 +28,7 @@ export default async function MapPage() {
       <h2 className="section-title">9 Provinces</h2>
       <div className="card-grid">
         {provinces.map((p) => (
-          <Link key={p.id} href={`/datasets?region=${encodeURIComponent(p.name)}`} className="card">
+          <Link key={p.id} href={`/regions/${p.id}`} className="card">
             <h3>{p.name}</h3>
             <p className="card-meta">Capital: {p.capital}</p>
             <p className="card-meta">{p.id}</p>

@@ -109,6 +109,23 @@ a:hover { text-decoration: underline; }
   text-align: center; color: var(--muted); font-size: 0.85rem;
 }
 
+.locale-switcher { display: flex; gap: 0.25rem; margin-left: auto; }
+.locale-switcher button {
+  padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer;
+}
+.locale-switcher button.active { border-color: var(--gold); color: var(--gold); }
+
+.card-button {
+  width: 100%; text-align: left; cursor: pointer; color: inherit; font: inherit;
+}
+.card-button.active { border-color: var(--gold); }
+
+.code-block {
+  background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1rem; overflow-x: auto; font-size: 0.8rem; margin-bottom: 1.5rem;
+}
+
 .text-muted { color: var(--muted); }
 .mt-2 { margin-top: 1rem; }
 .mb-2 { margin-bottom: 1rem; }

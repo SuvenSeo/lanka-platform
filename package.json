@@ -2,7 +2,7 @@
   "name": "lanka-platform",
   "private": true,
   "version": "0.2.0",
-  "workspaces": ["apps/*"],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "catalog:sync": "node scripts/sync-catalog.mjs",
     "web:dev": "npm run dev --workspace=@lanka/web",

@@ -1,5 +1,6 @@
 import { getDataset, getDatasets } from "@/lib/catalog";
 import { queryActsRag } from "@/lib/services/acts-rag";
+import { routeQuery } from "@/lib/services/chunk-rag";
 
 export function getElectionsOverview() {
   const electionDatasets = getDatasets({ q: "election", limit: 24 }).datasets;
@@ -71,6 +72,7 @@ export function getFederationOverview() {
         description: "379 GitHub repos, 269K+ documents, daily pipelines",
         url: "https://github.com/nuuuwan",
         type: "community",
+        api: "/api/v1/datasets",
       },
       {
         id: "datagov_lk",
@@ -78,6 +80,7 @@ export function getFederationOverview() {
         description: "Official ICTA government open data (CKAN)",
         url: "https://data.gov.lk",
         type: "government",
+        api: "/api/v1/federation/datagov",
       },
       {
         id: "ldflk",
@@ -85,8 +88,11 @@ export function getFederationOverview() {
         description: "175+ cleaned ministry datasets (2020–2025)",
         url: "https://ldflk.github.io/datasets/",
         type: "civic",
+        api: "/api/v1/federation/ldflk",
       },
     ],
+    suggest_dataset: "https://www.data.gov.lk/en/request-dataset",
+    rti_hub: "/rti",
     trilingual_note:
       "Lanka Platform prioritises සිංහල · தமிழ் · English access — addressing the English-only gap in official digitalisation.",
   };
@@ -114,23 +120,41 @@ export async function queryLegal(question: string, deep = false) {
 
   if (deep) {
     try {
-      const rag = await queryActsRag(question, 10);
+      const routed = await routeQuery(question, 10);
       result.deep_rag = {
-        answer: rag.answer,
-        chunks: rag.chunks.map((c) => ({
+        answer: routed.answer,
+        corpus: routed.corpus,
+        chunks: routed.chunks.map((c) => ({
           chunk_id: c.chunk_id,
-          act_id: c.act_id,
-          act_description: c.act_description,
-          act_year: c.act_year,
-          act_type: c.act_type,
-          act_source_url: c.act_source_url,
+          act_description: c.title,
           snippet: c.snippet,
+          act_source_url: c.source_url,
           score: c.score,
+          corpus: c.corpus,
         })),
-        source: rag.source,
-        engine: rag.engine,
+        source: `nuuuwan/lk-${routed.corpus}-chunks`,
+        engine: routed.engine,
       };
-      result.answer_summary = rag.answer.slice(0, 500);
+      if (routed.chunks.length > 0) {
+        result.answer_summary = routed.answer.slice(0, 500);
+      } else {
+        const rag = await queryActsRag(question, 10);
+        result.deep_rag = {
+          answer: rag.answer,
+          corpus: "acts",
+          chunks: rag.chunks.map((c) => ({
+            chunk_id: c.chunk_id,
+            act_description: c.act_description,
+            snippet: c.snippet,
+            act_source_url: c.act_source_url,
+            score: c.score,
+            corpus: "acts",
+          })),
+          source: rag.source,
+          engine: rag.engine,
+        };
+        result.answer_summary = rag.answer.slice(0, 500);
+      }
     } catch (e) {
       result.deep_rag = {
         answer: `Deep search unavailable: ${e instanceof Error ? e.message : "error"}. Showing catalog matches.`,
