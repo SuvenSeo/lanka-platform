@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { getDatasets } from "@/lib/api";
+import { getDatasets } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
 export default async function TransportPage() {
-  const datasets = await getDatasets({ domain: "transport", limit: 16 }).catch(() => ({
-    datasets: [],
-    total: 0,
-    count: 0,
-  }));
+  const datasets = getDatasets({ domain: "transport", limit: 16 });
 
   return (
     <div className="container">

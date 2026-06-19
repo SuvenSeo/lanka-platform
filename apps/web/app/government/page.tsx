@@ -1,11 +1,9 @@
-import { getFederation } from "@/lib/api";
+import { getFederationOverview } from "@/lib/services/platform";
 import GovernmentPageClient from "@/components/GovernmentPageClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function GovernmentPage() {
-  const data = await getFederation().catch(() => null);
-  const sources = (data?.sources as Array<Record<string, unknown>>) ?? [];
-
-  return <GovernmentPageClient sources={sources} />;
+export default function GovernmentPage() {
+  const data = getFederationOverview();
+  return <GovernmentPageClient sources={data.sources} />;
 }

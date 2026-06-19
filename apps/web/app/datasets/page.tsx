@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getDatasets, getDomains } from "@/lib/api";
+import { getDatasets, getDomains } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -10,13 +10,15 @@ export default async function DatasetsPage({
 }) {
   const params = await searchParams;
   const [data, domains] = await Promise.all([
-    getDatasets({
-      domain: params.domain,
-      status: params.status ?? "active",
-      q: params.q,
-      limit: 60,
-    }).catch(() => ({ datasets: [], total: 0, count: 0 })),
-    getDomains().catch(() => []),
+    Promise.resolve(
+      getDatasets({
+        domain: params.domain,
+        status: params.status ?? "active",
+        q: params.q,
+        limit: 60,
+      }),
+    ),
+    Promise.resolve(getDomains()),
   ]);
 
   return (

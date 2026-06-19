@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDataset } from "@/lib/api";
+import { getDataset } from "@/lib/catalog";
 import { fetchLiveDataset } from "@/lib/services/live-data";
 import { LiveDataTable } from "@/components/LiveDataTable";
 import { SyncBadge } from "@/components/SyncBadge";
@@ -14,7 +14,7 @@ export default async function DatasetDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const ds = await getDataset(id).catch(() => null);
+  const ds = getDataset(id);
   if (!ds) notFound();
 
   let live = null;

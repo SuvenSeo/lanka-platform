@@ -6,6 +6,18 @@ Vercel-native Sri Lanka open data portal — federates [nuuuwan](https://github.
 
 **Live:** https://lanka-platform-sand.vercel.app
 
+## Environment
+
+Copy `.env.example` to `apps/web/.env.local` (or set in Vercel):
+
+| Variable | Purpose |
+|----------|---------|
+| `CRON_SECRET` | Protect `/api/cron/sync` (required on Vercel production) |
+| `BLOB_READ_WRITE_TOKEN` | Persistent sync cache |
+| `MEILISEARCH_URL` + `MEILISEARCH_API_KEY` | Fast search |
+| `OPENAI_API_KEY` | LLM synthesis with citations |
+| `CURSOR_API_KEY` + `ADMIN_SECRET` | Catalog agent |
+
 ## Quick start
 
 ```bash
@@ -33,6 +45,10 @@ Push to `master` — Vercel auto-deploys from GitHub.
 - `POST /api/v1/rag/query` — multi-corpus document search (acts/news/hansard)
 - `POST /api/v1/rag/legal` — legal corpus routing
 - `GET /api/v1/health` — health check
+- `GET /api/v1/sync/status` — last cron sync status
+- `GET /api/v1/fuel?sample=30` — fuel shed status sample
+- `GET /api/v1/elections/highlights` — election results highlights
+- `GET /api/v1/live/{datasetId}` — live synced dataset
 
 ## SDK
 

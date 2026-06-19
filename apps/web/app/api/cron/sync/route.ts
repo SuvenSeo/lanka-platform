@@ -12,6 +12,9 @@ export const maxDuration = 300;
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
   const secret = process.env.CRON_SECRET;
+  if (process.env.VERCEL_ENV === "production" && !secret) {
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 503 });
+  }
   if (secret && auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

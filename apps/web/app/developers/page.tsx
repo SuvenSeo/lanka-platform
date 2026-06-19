@@ -3,7 +3,8 @@ import Link from "next/link";
 const ENDPOINTS = [
   { method: "GET", path: "/api/v1/stats", desc: "Platform statistics" },
   { method: "GET", path: "/api/v1/datasets", desc: "Browse catalog" },
-  { method: "GET", path: "/api/v1/live/{datasetId}", desc: "Live synced dataset (TSV/JSON)" },
+  { method: "GET", path: "/api/v1/fuel?sample=30", desc: "Fuel shed status sample" },
+  { method: "GET", path: "/api/v1/elections/highlights", desc: "Election results highlights" },
   { method: "GET", path: "/api/v1/search?q=", desc: "Meilisearch or keyword fallback" },
   { method: "GET", path: "/api/v1/sync/status", desc: "Last cron sync (Vercel Blob)" },
   { method: "GET", path: "/api/v1/analytics/news/timeline", desc: "News feed" },

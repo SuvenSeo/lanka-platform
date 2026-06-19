@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDatasets } from "@/lib/api";
+import { getDatasets } from "@/lib/catalog";
 import { getRegion, regionSearchQuery } from "@/lib/geo/regions";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +15,7 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const query = regionSearchQuery(region);
-  const datasets = await getDatasets({ q: query, limit: 12 }).catch(() => ({
-    datasets: [],
-    total: 0,
-    count: 0,
-  }));
+  const datasets = getDatasets({ q: query, limit: 12 });
 
   return (
     <div className="container">

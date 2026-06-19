@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { ProvinceMap } from "@/components/ProvinceMap";
-import { getGeoLayers } from "@/lib/api";
-import { PROVINCES } from "@/lib/geo/regions";
+import { getGeoLayers } from "@/lib/services/platform";
 
 export const dynamic = "force-dynamic";
 
 export default async function MapPage() {
-  const geo = await getGeoLayers().catch(() => null);
+  const geo = getGeoLayers();
   const provinces =
-    (geo?.provinces_list as Array<{ id: string; name: string; capital: string }>) ?? PROVINCES;
+    (geo.provinces_list as Array<{ id: string; name: string; capital: string }>);
 
   return (
     <div className="container">

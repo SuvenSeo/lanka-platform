@@ -1,15 +1,11 @@
 import Link from "next/link";
-import { getDatasets } from "@/lib/api";
+import { getDatasets } from "@/lib/catalog";
 import { TRILINGUAL } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function EnvironmentPage() {
-  const datasets = await getDatasets({ domain: "environment", limit: 24 }).catch(() => ({
-    datasets: [],
-    total: 0,
-    count: 0,
-  }));
+  const datasets = getDatasets({ domain: "environment", limit: 24 });
 
   return (
     <div className="container">

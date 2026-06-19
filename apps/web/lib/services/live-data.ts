@@ -2,6 +2,7 @@
  * Unified live data layer — fetches nuuuwan repo files and caches in-process.
  */
 import { getDataset, type Dataset } from "@/lib/catalog";
+import { fetchFuelDashboard } from "./fuel";
 import { fetchRemoteJson, fetchRemoteText, parseTsv } from "./remote-fetch";
 import { getSyncManifest } from "@/lib/sync/manifest";
 
@@ -47,6 +48,24 @@ export async function fetchLiveDataset(
 
   const ds = getDataset(datasetId);
   if (!ds) throw new Error(`Dataset '${datasetId}' not found`);
+
+  if (datasetId === "fuel_lk" || datasetId === "fuel_lk_app") {
+    const fuel = await fetchFuelDashboard(Math.min(limit, 40));
+    const result: LiveDataResult = {
+      dataset_id: datasetId,
+      name: ds.name,
+      domain: ds.domain,
+      format: "tsv",
+      source_path: "nuuuwan/fuel_lk/data/latest/",
+      synced_at: fuel.synced_at,
+      row_count: fuel.total_sheds,
+      header: fuel.header,
+      rows: fuel.rows.map((r) => ({ ...r })),
+      text: fuel.data_note,
+    };
+    cache.set(cacheKey, { at: now, result });
+    return result;
+  }
 
   for (const file of LIVE_FILES) {
     for (const url of dataUrls(ds, file)) {

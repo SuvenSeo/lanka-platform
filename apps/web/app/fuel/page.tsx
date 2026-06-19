@@ -1,64 +1,46 @@
 import Link from "next/link";
-import { fetchLiveDataset } from "@/lib/services/live-data";
+import { getDatasets } from "@/lib/catalog";
+import { fetchFuelDashboard } from "@/lib/services/fuel";
 import { LiveDataTable } from "@/components/LiveDataTable";
 import { SyncBadge } from "@/components/SyncBadge";
-import { getDatasets } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export default async function FuelPage() {
-  const fuelDatasets = await getDatasets({ q: "fuel", limit: 12 }).catch(() => ({
-    datasets: [],
-    total: 0,
-    count: 0,
-  }));
-
-  let live = null;
-  try {
-    live = await fetchLiveDataset("fuel_lk", { limit: 100 });
-  } catch {
-    /* no live file */
-  }
+  const fuelDatasets = getDatasets({ q: "fuel", limit: 12 });
+  const fuel = await fetchFuelDashboard(30).catch(() => null);
 
   return (
     <div className="container">
       <section className="hero">
         <p className="trilingual">ඉන්ධන · எரிபொருள் · Fuel Prices</p>
         <h1>Fuel & Energy Dashboard</h1>
-        <p className="text-muted">Live fuel price data synced from nuuuwan/fuel_lk — no external apps.</p>
-        {live && <SyncBadge syncedAt={live.synced_at} source="fuel_lk pipeline" />}
+        <p className="text-muted">
+          {fuel?.total_sheds.toLocaleString() ?? "1,300+"} fuel sheds from nuuuwan/fuel_lk — sampled
+          live status in-platform.
+        </p>
+        {fuel && <SyncBadge syncedAt={fuel.synced_at} source={fuel.source} />}
       </section>
 
-      {live?.rows && live.rows.length > 0 && (
+      {fuel && (
         <>
-          <h2 className="section-title">Latest fuel prices</h2>
-          <LiveDataTable header={live.header} rows={live.rows} maxRows={50} />
+          <p className="text-muted mb-2">{fuel.data_note}</p>
+          <h2 className="section-title">
+            Shed status sample ({fuel.sampled} of {fuel.total_sheds})
+          </h2>
+          <LiveDataTable header={fuel.header} rows={fuel.rows} maxRows={30} />
         </>
       )}
 
-      {live?.text && !live.rows?.length && (
-        <div className="card mt-2">
-          <h3>Pipeline log</h3>
-          <pre className="code-block doc-body">{live.text.slice(0, 12000)}</pre>
-        </div>
-      )}
-
-      {live?.data != null && (
-        <div className="card mt-2">
-          <h3>Price summary</h3>
-          <pre className="code-block">{JSON.stringify(live.data, null, 2).slice(0, 8000)}</pre>
-        </div>
-      )}
-
-      {!live && <p className="text-muted">Syncing fuel data — check back shortly.</p>}
+      {!fuel && <p className="text-muted">Fuel data temporarily unavailable.</p>}
 
       <h2 className="section-title">Related datasets</h2>
       <div className="dataset-list">
         {fuelDatasets.datasets.map((ds) => (
           <Link key={ds.id} href={`/apps/${ds.id}`} className="card">
             <h3>{ds.name}</h3>
-            <p className="card-desc">{ds.description}</p>
+            <p className="card-desc">{ds.description || ds.id}</p>
           </Link>
         ))}
       </div>

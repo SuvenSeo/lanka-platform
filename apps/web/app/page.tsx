@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getStats, getDomains, getDatasets } from "@/lib/api";
+import { getStats, getDomains, getDatasets } from "@/lib/catalog";
 import { formatNumber } from "@/lib/utils";
 import { TRILINGUAL } from "@/lib/i18n";
 
@@ -16,9 +16,9 @@ const FEATURES = [
 
 export default async function HomePage() {
   const [stats, domains, top] = await Promise.all([
-    getStats().catch(() => null),
-    getDomains().catch(() => []),
-    getDatasets({ status: "active", limit: 8 }).catch(() => ({ datasets: [], total: 0, count: 0 })),
+    Promise.resolve(getStats()),
+    Promise.resolve(getDomains()),
+    Promise.resolve(getDatasets({ status: "active", limit: 8 })),
   ]);
 
   return (
