@@ -68,19 +68,14 @@ export default function CabinetPage() {
 
       <div className="dataset-list">
         {results.map((d) => (
-          <article key={d.doc_id} className="card">
+          <Link key={d.doc_id} href={`/cabinet/decision/${encodeURIComponent(d.doc_id)}`} className="card">
             <h3>{d.description}</h3>
             {d.body_snippet && <p className="card-desc">{d.body_snippet}</p>}
             <p className="card-meta">
               {d.date && <span className="badge">{d.date}</span>}
               {d.lang && <span className="badge">{d.lang}</span>}
-              {d.url && (
-                <a href={d.url} target="_blank" rel="noopener noreferrer" className="badge">
-                  Official source
-                </a>
-              )}
             </p>
-          </article>
+          </Link>
         ))}
       </div>
 

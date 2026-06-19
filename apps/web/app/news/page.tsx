@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getNewsTimeline } from "@/lib/api";
 import { TRILINGUAL } from "@/lib/i18n";
+import { SyncBadge } from "@/components/SyncBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,6 @@ export default async function NewsPage() {
       newspaper_name: string;
       lang: string;
       description: string;
-      url: string;
     }>) ?? [];
 
   return (
@@ -22,42 +22,32 @@ export default async function NewsPage() {
         <p className="trilingual">{TRILINGUAL.news}</p>
         <h1>News Timeline</h1>
         <p className="text-muted">
-          Latest articles from lk_news — trilingual stories from Sri Lankan outlets.
+          Latest articles from lk_news — read in-platform, synced from nuuuwan pipelines.
         </p>
+        <SyncBadge source="nuuuwan/lk_news" />
       </section>
 
       {!timeline && (
-        <p className="text-muted">Could not load news feed. Try again shortly.</p>
+        <p className="text-muted">Could not load news feed. Sync will retry automatically.</p>
       )}
 
       <div className="dataset-list">
         {articles.map((a) => (
-          <article key={a.doc_id} className="card">
-            <h3>
-              {a.url ? (
-                <a href={a.url} target="_blank" rel="noopener noreferrer">
-                  {a.description}
-                </a>
-              ) : (
-                a.description
-              )}
-            </h3>
+          <Link key={a.doc_id} href={`/news/${encodeURIComponent(a.doc_id)}`} className="card">
+            <h3>{a.description}</h3>
             <p className="card-meta">
               <span className="badge">{a.date}</span>
               <span className="badge">{a.newspaper_name}</span>
               <span className="badge">{a.lang}</span>
             </p>
-          </article>
+          </Link>
         ))}
       </div>
 
       <p className="mt-2 text-muted">
-        Source:{" "}
-        <a href="https://github.com/nuuuwan/lk_news" target="_blank" rel="noopener noreferrer">
-          nuuuwan/lk_news
-        </a>
+        <Link href="/datasets/lk_news">News dataset explorer</Link>
         {" · "}
-        <Link href="/datasets/lk_news">Dataset</Link>
+        <Link href="/legal">Search news corpus</Link>
       </p>
     </div>
   );

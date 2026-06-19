@@ -69,15 +69,10 @@ export default async function RegionPage({
           <h3>Disaster alerts</h3>
           <p className="card-desc">Floods, landslides, weather warnings</p>
         </Link>
-        <a
-          href="https://nuuuwan.github.io/lk_locator/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="card"
-        >
-          <h3>LK Locator</h3>
+        <Link href="/apps/lk_admin_regions" className="card">
+          <h3>Regional explorer</h3>
           <p className="card-desc">Interactive map for {region.name}</p>
-        </a>
+        </Link>
       </div>
 
       <p className="mt-2 text-muted">

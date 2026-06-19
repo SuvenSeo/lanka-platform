@@ -7,6 +7,7 @@ import { TRILINGUAL } from "@/lib/i18n";
 export default function LegalPage() {
   const [question, setQuestion] = useState("");
   const [deep, setDeep] = useState(true);
+  const [synthesize, setSynthesize] = useState(false);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +19,7 @@ export default function LegalPage() {
       const res = await fetch("/api/v1/rag/legal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, deep }),
+        body: JSON.stringify({ question, deep, synthesize }),
       });
       setResult(await res.json());
     } catch {
@@ -39,6 +40,11 @@ export default function LegalPage() {
 
   const deepRag = result?.deep_rag as {
     answer?: string;
+    synthesis?: {
+      answer: string;
+      citations: Array<{ index: number; title: string; source_url?: string; corpus: string }>;
+      model: string;
+    };
     chunks?: Array<{ snippet?: string; act_description?: string; act_source_url?: string }>;
   } | undefined;
 
@@ -64,6 +70,15 @@ export default function LegalPage() {
           <input type="checkbox" checked={deep} onChange={(e) => setDeep(e.target.checked)} />
           Deep search
         </label>
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--muted)" }}>
+          <input
+            type="checkbox"
+            checked={synthesize}
+            onChange={(e) => setSynthesize(e.target.checked)}
+            disabled={!deep}
+          />
+          AI synthesis with citations
+        </label>
         <button type="submit" className="btn" disabled={loading}>
           {loading ? "Searching…" : "Ask"}
         </button>
@@ -75,7 +90,34 @@ export default function LegalPage() {
         </div>
       )}
 
-      {deepRag?.answer && (
+      {deepRag?.synthesis && (
+        <div className="card mt-2">
+          <h3>AI synthesis</h3>
+          <p className="card-desc">{deepRag.synthesis.answer}</p>
+          <p className="text-muted" style={{ fontSize: "0.75rem" }}>
+            Model: {deepRag.synthesis.model}
+          </p>
+          {deepRag.synthesis.citations.length > 0 && (
+            <ul className="citation-list">
+              {deepRag.synthesis.citations.map((c) => (
+                <li key={c.index}>
+                  [{c.index}] {c.title}
+                  {c.source_url && (
+                    <>
+                      {" — "}
+                      <a href={c.source_url} target="_blank" rel="noopener noreferrer">
+                        source
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {deepRag?.answer && !deepRag?.synthesis && (
         <div className="card mt-2">
           <h3>Deep RAG</h3>
           <p className="card-desc">{deepRag.answer}</p>
@@ -90,11 +132,6 @@ export default function LegalPage() {
               <article key={i} className="card">
                 <h3>{c.act_description}</h3>
                 <p className="card-desc">{c.snippet}</p>
-                {c.act_source_url && (
-                  <a href={c.act_source_url} target="_blank" rel="noopener noreferrer">
-                    Source →
-                  </a>
-                )}
               </article>
             ))}
           </div>

@@ -5,6 +5,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "catalog:sync": "node scripts/sync-catalog.mjs",
+    "catalog:agent": "npm run sync --workspace=@lanka/catalog-agent",
     "web:dev": "npm run dev --workspace=@lanka/web",
     "web:build": "npm run build --workspace=@lanka/web",
     "build": "npm run build --workspace=@lanka/web"

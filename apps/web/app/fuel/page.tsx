@@ -1,45 +1,55 @@
 import Link from "next/link";
+import { fetchLiveDataset } from "@/lib/services/live-data";
+import { LiveDataTable } from "@/components/LiveDataTable";
+import { SyncBadge } from "@/components/SyncBadge";
 import { getDatasets } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export default async function FuelPage() {
-  const fuel = await getDatasets({ q: "fuel", limit: 12 }).catch(() => ({
+  const fuelDatasets = await getDatasets({ q: "fuel", limit: 12 }).catch(() => ({
     datasets: [],
     total: 0,
     count: 0,
   }));
+
+  let live = null;
+  try {
+    live = await fetchLiveDataset("fuel_lk", { limit: 100 });
+  } catch {
+    /* no live file */
+  }
 
   return (
     <div className="container">
       <section className="hero">
         <p className="trilingual">ඉන්ධන · எரிபொருள் · Fuel Prices</p>
         <h1>Fuel & Energy Dashboard</h1>
-        <p className="text-muted">
-          Track fuel prices and energy data from nuuuwan pipelines and civic apps.
-        </p>
+        <p className="text-muted">Live fuel price data synced from nuuuwan/fuel_lk — no external apps.</p>
+        {live && <SyncBadge syncedAt={live.synced_at} source="fuel_lk pipeline" />}
       </section>
 
-      <div className="card-grid mb-2">
-        <a
-          href="https://nuuuwan.github.io/fuel_lk_app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="card"
-        >
-          <h3>Fuel LK App</h3>
-          <p className="card-desc">Live fuel price tracker — petrol, diesel, kerosene.</p>
-        </a>
-        <Link href="/datasets?domain=economic" className="card">
-          <h3>Economic datasets</h3>
-          <p className="card-desc">CBSL, treasury, and price index data.</p>
-        </Link>
-      </div>
+      {live?.rows && live.rows.length > 0 && (
+        <>
+          <h2 className="section-title">Latest fuel prices</h2>
+          <LiveDataTable header={live.header} rows={live.rows} maxRows={50} />
+        </>
+      )}
+
+      {live?.data != null && (
+        <div className="card mt-2">
+          <h3>Price summary</h3>
+          <pre className="code-block">{JSON.stringify(live.data, null, 2).slice(0, 8000)}</pre>
+        </div>
+      )}
+
+      {!live && <p className="text-muted">Syncing fuel data — check back shortly.</p>}
 
       <h2 className="section-title">Related datasets</h2>
       <div className="dataset-list">
-        {fuel.datasets.map((ds) => (
-          <Link key={ds.id} href={`/datasets/${ds.id}`} className="card">
+        {fuelDatasets.datasets.map((ds) => (
+          <Link key={ds.id} href={`/apps/${ds.id}`} className="card">
             <h3>{ds.name}</h3>
             <p className="card-desc">{ds.description}</p>
           </Link>

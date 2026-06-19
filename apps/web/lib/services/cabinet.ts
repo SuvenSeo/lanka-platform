@@ -80,6 +80,21 @@ export async function searchCabinet(q: string, limit = 20): Promise<{
   };
 }
 
+export async function getCabinetDecision(docId: string): Promise<CabinetDecision | null> {
+  const rows = await loadRows();
+  const row = rows.find((r) => r.doc_id === docId);
+  if (!row) return null;
+  return {
+    doc_id: row.doc_id ?? "",
+    date: row.date_str ?? "",
+    description: row.description ?? "",
+    title: row.decision_details_title,
+    body_snippet: row.decision_details_body ?? "",
+    lang: row.lang,
+    url: row.url_metadata,
+  };
+}
+
 export async function getRecentCabinet(limit = 15) {
   const rows = await loadRows();
   const sorted = [...rows].sort((a, b) => (b.date_str ?? "").localeCompare(a.date_str ?? ""));

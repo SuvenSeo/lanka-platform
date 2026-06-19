@@ -48,3 +48,8 @@ export async function fetchNewsTimeline(limit = 30, outlet?: string): Promise<{
     source: "nuuuwan/lk_news",
   };
 }
+
+export async function getNewsArticle(docId: string): Promise<NewsArticle | null> {
+  const { articles } = await fetchNewsTimeline(10_000);
+  return articles.find((a) => a.doc_id === docId) ?? null;
+}

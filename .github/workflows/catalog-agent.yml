@@ -1,0 +1,26 @@
+name: Catalog Agent
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  catalog-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm install
+      - name: Sync catalog
+        run: npm run catalog:sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Cursor catalog agent
+        if: ${{ secrets.CURSOR_API_KEY != '' }}
+        run: npm run sync --workspace=@lanka/catalog-agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}

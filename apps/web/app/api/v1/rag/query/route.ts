@@ -1,11 +1,17 @@
 import { routeQuery, type CorpusId } from "@/lib/services/chunk-rag";
+import { synthesizeFromChunks } from "@/lib/services/rag-synthesis";
 import { jsonError, jsonOk } from "../../_lib/response";
 
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { question?: string; corpus?: string; limit?: number };
+    const body = (await request.json()) as {
+      question?: string;
+      corpus?: string;
+      limit?: number;
+      synthesize?: boolean;
+    };
     const question = body.question?.trim();
     if (!question) return jsonError("question is required", 400);
 
@@ -13,7 +19,21 @@ export async function POST(request: Request) {
     const valid: CorpusId[] = ["acts", "news", "hansard"];
     const chosen = corpus && valid.includes(corpus) ? corpus : undefined;
 
-    return jsonOk(await routeQuery(question, body.limit ?? 8, chosen));
+    const result = await routeQuery(question, body.limit ?? 8, chosen);
+
+    if (body.synthesize && result.chunks.length > 0) {
+      const synthesis = await synthesizeFromChunks(question, result.chunks);
+      if (synthesis) {
+        return jsonOk({
+          ...result,
+          answer: synthesis.answer,
+          synthesis,
+          engine: synthesis.engine,
+        });
+      }
+    }
+
+    return jsonOk(result);
   } catch (e) {
     return jsonError(e instanceof Error ? e.message : "RAG query failed", 500);
   }

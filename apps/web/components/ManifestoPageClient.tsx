@@ -65,17 +65,16 @@ export default function ManifestoPageClient({ themes }: { themes: Theme[] }) {
           <h2 className="section-title">Related cabinet decisions</h2>
           <div className="dataset-list">
             {results.map((d) => (
-              <article key={d.doc_id} className="card">
+              <Link
+                key={d.doc_id}
+                href={`/cabinet/decision/${encodeURIComponent(d.doc_id)}`}
+                className="card"
+              >
                 <h3>{d.description}</h3>
                 <p className="card-meta">
                   {d.date && <span className="badge">{d.date}</span>}
-                  {d.url && (
-                    <a href={d.url} target="_blank" rel="noopener noreferrer">
-                      Official source →
-                    </a>
-                  )}
                 </p>
-              </article>
+              </Link>
             ))}
           </div>
         </>
@@ -83,14 +82,6 @@ export default function ManifestoPageClient({ themes }: { themes: Theme[] }) {
 
       <p className="mt-2 text-muted">
         <Link href="/cabinet">Cabinet search</Link>
-        {" · "}
-        <a
-          href="https://github.com/nuuuwan/manifesto_monitoring"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          manifesto_monitoring
-        </a>
       </p>
     </div>
   );

@@ -1,0 +1,17 @@
+{
+  "name": "@lanka/catalog-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "tsx src/run-catalog-agent.ts",
+    "enrich": "tsx src/run-enrich-agent.ts"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

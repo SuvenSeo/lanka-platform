@@ -28,6 +28,7 @@ export type DatagovDataset = {
   license?: string;
   modified?: string;
   url: string;
+  internal_url: string;
   source: "data.gov.lk";
   provenance: {
     publisher: string;
@@ -53,6 +54,7 @@ export async function searchDatagov(q: string, limit = 20): Promise<{
     license: pkg.license_title,
     modified: pkg.metadata_modified,
     url: `https://data.gov.lk/dataset/${pkg.name}`,
+    internal_url: `/government/dataset/${pkg.name}`,
     source: "data.gov.lk" as const,
     provenance: {
       publisher: pkg.organization?.title ?? "Government of Sri Lanka",
@@ -81,6 +83,7 @@ export async function listDatagovRecent(limit = 15): Promise<DatagovDataset[]> {
     license: pkg.license_title,
     modified: pkg.metadata_modified,
     url: `https://data.gov.lk/dataset/${pkg.name}`,
+    internal_url: `/government/dataset/${pkg.name}`,
     source: "data.gov.lk" as const,
     provenance: {
       publisher: pkg.organization?.title ?? "Government of Sri Lanka",

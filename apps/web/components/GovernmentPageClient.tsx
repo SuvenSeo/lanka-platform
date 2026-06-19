@@ -7,9 +7,9 @@ import { TRILINGUAL } from "@/lib/i18n";
 type GovResult = {
   title: string;
   description: string;
-  url: string;
+  internal_url?: string;
+  name?: string;
   organization?: string;
-  license?: string;
 };
 
 export default function GovernmentPageClient({
@@ -31,12 +31,20 @@ export default function GovernmentPageClient({
         fetch(`/api/v1/federation/datagov?q=${encodeURIComponent(query)}`).then((r) => r.json()),
         fetch(`/api/v1/federation/ldflk?q=${encodeURIComponent(query)}`).then((r) => r.json()),
       ]);
-      setGovResults(gov.results ?? []);
+      setGovResults(
+        (gov.results ?? []).map((r: Record<string, string>) => ({
+          title: r.title,
+          description: r.description,
+          internal_url: r.internal_url ?? `/government/dataset/${r.name}`,
+          name: r.name,
+          organization: r.organization,
+        })),
+      );
       setLdflkResults(
         (ldf.results ?? []).map((d: Record<string, string>) => ({
           title: d.title,
-          description: d.description,
-          url: d.url,
+          description: `${d.ministry ?? "LDFLK"} · ${d.year ?? ""}`,
+          internal_url: d.internal_url ?? `/government/ldflk/${d.year}/${encodeURIComponent(d.title)}`,
           organization: d.ministry,
         })),
       );
@@ -51,26 +59,20 @@ export default function GovernmentPageClient({
         <p className="trilingual">{TRILINGUAL.government}</p>
         <h1>Government & Federation</h1>
         <p className="text-muted">
-          Official and community open data sources federated for Sri Lankans.
+          Official and community data — searched and previewed inside Lanka Platform.
         </p>
       </section>
 
       <div className="dataset-list mb-2">
         {sources.map((src) => (
-          <a
-            key={String(src.id)}
-            href={String(src.url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card"
-          >
+          <div key={String(src.id)} className="card">
             <h3>{String(src.name)}</h3>
             <p className="card-desc">{String(src.description)}</p>
             <span className="badge badge-maroon">{String(src.type)}</span>
             {src.api != null && (
               <span className="badge">{String(src.api)}</span>
             )}
-          </a>
+          </div>
         ))}
       </div>
 
@@ -93,11 +95,12 @@ export default function GovernmentPageClient({
           <h2 className="section-title">data.gov.lk results</h2>
           <div className="dataset-list">
             {govResults.map((r) => (
-              <a key={r.url} href={r.url} target="_blank" rel="noopener noreferrer" className="card">
+              <Link key={r.internal_url} href={r.internal_url!} className="card">
                 <h3>{r.title}</h3>
                 <p className="card-desc">{r.description}</p>
                 {r.organization && <span className="badge">{r.organization}</span>}
-              </a>
+                <span className="badge badge-active">View in-platform</span>
+              </Link>
             ))}
           </div>
         </>
@@ -108,11 +111,11 @@ export default function GovernmentPageClient({
           <h2 className="section-title">LDFLK results</h2>
           <div className="dataset-list">
             {ldflkResults.map((r) => (
-              <a key={r.title} href={r.url} target="_blank" rel="noopener noreferrer" className="card">
+              <Link key={r.title} href={r.internal_url!} className="card">
                 <h3>{r.title}</h3>
                 <p className="card-desc">{r.description}</p>
                 {r.organization && <span className="badge">{r.organization}</span>}
-              </a>
+              </Link>
             ))}
           </div>
         </>
@@ -120,14 +123,6 @@ export default function GovernmentPageClient({
 
       <p className="mt-2 text-muted">
         <Link href="/rti">RTI resource hub</Link>
-        {" · "}
-        <a
-          href="https://www.data.gov.lk/en/request-dataset"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Suggest a dataset
-        </a>
       </p>
     </div>
   );

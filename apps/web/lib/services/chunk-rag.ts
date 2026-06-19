@@ -151,6 +151,30 @@ export async function queryCorpus(
   return { corpus: corpusId, chunks, chunk_count: chunks.length };
 }
 
+export async function findByDocId(
+  corpusId: CorpusId,
+  docId: string,
+): Promise<{ chunks: Array<{ chunk_id: string; text: string; title: string }>; corpus: CorpusId }> {
+  const cfg = CORPORA.find((c) => c.id === corpusId);
+  if (!cfg) throw new Error(`Unknown corpus: ${corpusId}`);
+
+  const rows = await loadCorpus(corpusId);
+  const normalized = docId.toLowerCase();
+  const matches = rows.filter((r) => {
+    const id = String(r.doc_id ?? r.id ?? "").toLowerCase();
+    return id === normalized || id.includes(normalized) || normalized.includes(id);
+  });
+
+  return {
+    corpus: corpusId,
+    chunks: matches.slice(0, 20).map((r) => ({
+      chunk_id: String(r.chunk_id ?? r.id ?? ""),
+      text: String(r.chunk_text ?? ""),
+      title: String(r[cfg.titleField] ?? ""),
+    })),
+  };
+}
+
 export async function routeQuery(question: string, limit = 8, corpus?: CorpusId) {
   const target = corpus ?? routeCorpus(question);
   try {

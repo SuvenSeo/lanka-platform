@@ -1,13 +1,14 @@
 import { getDataset, getDatasets } from "@/lib/catalog";
 import { queryActsRag } from "@/lib/services/acts-rag";
 import { routeQuery } from "@/lib/services/chunk-rag";
+import { synthesizeFromChunks } from "@/lib/services/rag-synthesis";
 
 export function getElectionsOverview() {
   const electionDatasets = getDatasets({ q: "election", limit: 24 }).datasets;
   return {
     title: "Sri Lanka Elections",
     description: "Election data from 1947–2025 via nuuuwan's elections_lk ecosystem.",
-    live_app: "https://nuuuwan.github.io/election",
+    live_app: "/elections",
     pypi: "elections_lk-nuuuwan",
     datasets: electionDatasets,
     years_covered: "1947–2025",
@@ -98,7 +99,7 @@ export function getFederationOverview() {
   };
 }
 
-export async function queryLegal(question: string, deep = false) {
+export async function queryLegal(question: string, deep = false, synthesize = false) {
   const matched = getDatasets({ domain: "legal", q: question, limit: 12 }).datasets;
 
   const result: Record<string, unknown> = {
@@ -136,7 +137,22 @@ export async function queryLegal(question: string, deep = false) {
         engine: routed.engine,
       };
       if (routed.chunks.length > 0) {
-        result.answer_summary = routed.answer.slice(0, 500);
+        if (synthesize) {
+          const synthesis = await synthesizeFromChunks(question, routed.chunks);
+          if (synthesis) {
+            result.deep_rag = {
+              ...((result.deep_rag as Record<string, unknown>) ?? {}),
+              answer: synthesis.answer,
+              synthesis,
+              engine: synthesis.engine,
+            };
+            result.answer_summary = synthesis.answer.slice(0, 500);
+          } else {
+            result.answer_summary = routed.answer.slice(0, 500);
+          }
+        } else {
+          result.answer_summary = routed.answer.slice(0, 500);
+        }
       } else {
         const rag = await queryActsRag(question, 10);
         result.deep_rag = {
